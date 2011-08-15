@@ -59,6 +59,7 @@ public class Parser
 
     private TokenStream ts;
     private int currentFlaggedToken;
+    private int prevStatement;
     private int syntaxErrorCount;
 
     private IRFactory nf;
@@ -359,7 +360,7 @@ public class Parser
         try {
             for (;;) {
                 int tt = peekToken();
-
+                prevStatement = tt;
                 if (tt <= Token.EOF) {
                     break;
                 }
@@ -688,6 +689,7 @@ public class Parser
         Node pn = null;
 
         int tt;
+        boolean no_semi = false;
 
         tt = peekToken();
 
@@ -1159,7 +1161,42 @@ public class Parser
             int lineno = ts.getLineno();
             String name = ts.getString();
             setCheckForLabel();
-            pn = expr(false);
+            
+            /** 
+             * insert for Token.INCLUDE
+             * $include('file.js');
+             * $include('file.js','utf-8');
+            **/
+            String n = Token.name(Token.INCLUDE,true);
+            //int tk = ts.previewToken();
+            if( name.equals(n) ){
+            	decompiler.addToken(Token.INCLUDE);
+            	consumeToken();
+            	peekToken();			// (
+            	consumeToken();
+            	peekToken();			// String file-name
+            	decompiler.addName(ts.getString());
+            	consumeToken();
+            	int tk = peekToken();	// ) or ,
+            	if(tk == Token.COMMA){
+            		consumeToken();
+            		tk = peekToken();	// String charset param
+            		if(tk == Token.STRING){
+            			decompiler.addName(ts.getString());
+            			consumeToken();
+            			peekToken();	// )
+            		}
+            	}
+            	consumeToken();
+            	tk = peekToken();
+            	if(tk == Token.SEMI)
+            		consumeToken();
+				pn = nf.createLeaf(Token.EMPTY);
+				//no_semi = true;
+				break;
+            }
+            /** insert end **/
+            pn = expr(false); 
             if (pn.getType() != Token.LABEL) {
                 pn = nf.createExprStatement(pn, lineno);
             } else {
@@ -1227,7 +1264,7 @@ public class Parser
             }
             break;
         }
-        decompiler.addEOL(Token.SEMI);
+        if(!no_semi)decompiler.addEOL(Token.SEMI);
 
         return pn;
     }

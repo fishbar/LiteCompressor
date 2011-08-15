@@ -238,12 +238,14 @@ public class Token
 
         CONDCOMMENT    = 152,  // JScript conditional comment
         KEEPCOMMENT    = 153,  // /*! ... */ comment
+        INCLUDE		   = 154,
+        LAST_TOKEN     = 155;
 
-        LAST_TOKEN     = 154;
-
-    public static String name(int token)
-    {
-        if (!printNames) {
+    public static String name(int token){
+    	return name(token,printNames);
+    }
+    public static String name(int token ,boolean ss){
+        if (!ss) {
             return String.valueOf(token);
         }
         switch (token) {
@@ -398,6 +400,7 @@ public class Token
           case SET:             return "SET";
           case CONST:           return "CONST";
           case SETCONST:        return "SETCONST";
+          case INCLUDE:			return "$include";
         }
 
         // Token without name
