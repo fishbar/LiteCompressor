@@ -1,6 +1,4 @@
 package org.lite.js;
-import org.mozilla.javascript.ErrorReporter;
-import org.mozilla.javascript.EvaluatorException;
 import com.yahoo.platform.yui.compressor.*;
 
 import jargs.gnu.CmdLineParser;
@@ -8,20 +6,15 @@ import jargs.gnu.CmdLineParser;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class LiteCompressor {
 	private static String charset;
 	private static String iext;
 	private static String oext;
-	private static String in;
-	private static String out;
 	
 	public static void main(String args[]){
 		CmdLineParser parser = new CmdLineParser();
-		CmdLineParser.Option typeOpt = parser.addStringOption("t");
+		CmdLineParser.Option typeOpt = parser.addStringOption('t',"type");
 		CmdLineParser.Option codeBaseOpt = parser.addStringOption('b',"codebase");
 		CmdLineParser.Option outputOpt = parser.addStringOption('o', "output");
 		CmdLineParser.Option inputOpt = parser.addStringOption('i', "input");
@@ -55,17 +48,19 @@ public class LiteCompressor {
 		boolean _nomunge				= parser.getOptionValue(nomungeOpt) == null;
 		boolean _preserveAllSemiColons	= parser.getOptionValue(preserveSemiOpt) != null;
 		boolean _disableOptimizations	= parser.getOptionValue(disableOptimizationsOpt) != null;
+		boolean _help					= parser.getOptionValue(helpOpt) != null;
 		String _lb						= (String)parser.getOptionValue(linebreakOpt);
-		String _codeBase =  "";
 		boolean _verbose = false;
 		
 		int _linebreak = -1;
 		String regEx="\\.\\w+$";
+		
+		
 		// check params
 		if( _type == null ){
 			_type = "js";
 		}
-		if( (_type != "js" && _type != "css") || _in == null || _codebase == null){
+		if( _in == null || _codebase == null || _help){
 			help();
 			System.exit(1);
 		}
@@ -119,27 +114,33 @@ public class LiteCompressor {
 		_out = out_dir.getAbsolutePath();
 		
 		if(in_dir.isDirectory()){			// dir file
-			compressDir(_in, _out);
+			compressDir(_in, _out,_type);
 		}else{							// single file
-			System.out.println( "[Compress JS]" + _in.substring(_codebase.length()));
-			compressFile(_in,_out);
+			System.out.println( "[Compress File]" + _in.substring(_codebase.length()));
+			compressFile(_in,_out,_type);
 			System.out.println("[Done] ok!!!");
 		}
 	}
-	public static void compressFile(String in,String out){
-		MergerCompressor compressor = new MergerCompressor(true);
+	public static void compressFile(String in,String out,String type){
 		try{
 			Reader inputFile = new InputStreamReader(new FileInputStream(in), charset);
 			Writer outputFile = new OutputStreamWriter(new FileOutputStream(out), charset);
-			compressor.loadScript(inputFile,new LiteReporter());
-			compressor.compress(outputFile);
+			if(type.equalsIgnoreCase("js")){
+				MergerCompressor compressor = new MergerCompressor(true);
+				
+				compressor.loadScript(inputFile,new LiteReporter());
+				compressor.compress(outputFile);
+			}else{
+				CssCompressor compressor = new CssCompressor(inputFile);
+				compressor.compress(outputFile,-1);
+			}
 			inputFile.close();
 			outputFile.close();
 		}catch(Exception e){
 			System.out.println("compressor error!!!");
 		}
 	}
-	public static void compressDir(String input,String output){
+	public static void compressDir(String input,String output,String type){
 		File out_dir = new File(output);
 		ArrayList<String> files = new ArrayList<String>();
 		getFileListByDir(input,files);
@@ -157,7 +158,7 @@ public class LiteCompressor {
 		for(String fname : files){
 			i ++;
 			String relative_file = fname.substring(in_len);
-			System.out.println( i+"\t[Compress JS]" + fname.substring(in_len));
+			System.out.println( i+"\t[Compress File]" + fname.substring(in_len));
 			String _output = output + relative_file.replaceFirst(iext+"$", "") + "." + oext ;
 			File check_file = new File(new File(_output).getParent());
 			if(!check_file.exists()){
@@ -167,7 +168,7 @@ public class LiteCompressor {
 				}
 			}
 			System.err.println("-->"+fname+"<--");
-			compressFile(fname,_output);
+			compressFile(fname,_output,type);
 			System.err.println("--EOF--");
 		}	
 	}
