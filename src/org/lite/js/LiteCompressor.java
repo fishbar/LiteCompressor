@@ -170,6 +170,10 @@ public class LiteCompressor {
 			System.err.println("-->"+fname+"<--");
 			compressFile(fname,_output,type);
 			System.err.println("--EOF--");
+			if(LiteReporter.errorCount > 0){
+				System.exit(1);
+				break;
+			}
 		}	
 	}
 	private static  void getFileListByDir(String tar,ArrayList<String> files){
@@ -197,8 +201,8 @@ public class LiteCompressor {
 	                        + "  -b, --codebase            !		codebase path\n"
 	                        + "  -i, --input               !		input file path\n"
 	                        + "  -o, --output              [in+oext]output file path\n"
-	                        + "  --iext, --input           [js|css]	input file suffix\n"
-	                        + "  --oext, --input           [min.js|min.css]	output file suffix\n"
+	                        + "  --iext, --input_sfx       [js|css]	input file suffix\n"
+	                        + "  --oext, --output_sfx      [min.js|min.css]	output file suffix\n"
 	                        + "  -t ,--type <js|css>       [js]		Specifies the type of the input file\n"
 	                        + "  --charset <charset>       [utf-8]	Read the input file using <charset>\n"
 	                        + "  --line-break <column>     [-1,nobreak]Insert a line break after the specified column number\n\n"
