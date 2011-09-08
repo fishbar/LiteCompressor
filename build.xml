@@ -39,7 +39,7 @@
         </copy>
         <jar destfile="${build.dir}/${jar.name}" basedir="${build.dir}/jar">
             <manifest>
-                <attribute name="Main-Class" value="com.yahoo.platform.yui.compressor.Bootstrap"/>
+                <attribute name="Main-Class" value="org.lite.js.LiteCompressor"/>
             </manifest>
         </jar>
     </target>
