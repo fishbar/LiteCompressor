@@ -4,7 +4,9 @@ import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 
 public class LiteReporter implements ErrorReporter{
+	public static int errorCount = 0;
 	public void warning(String message, String sourceName, int line, String lineSource, int lineOffset) {
+		errorCount ++;
 		if (line < 0) {
 			System.err.println("[WARNING]" + message);
 		} else {
@@ -13,6 +15,7 @@ public class LiteReporter implements ErrorReporter{
 	}
 
 	public void error(String message, String sourceName,	int line, String lineSource, int lineOffset) {
+		errorCount ++;
 		if (line < 0) {
 			System.err.println("[ERROR_PACKER]" + message );
 		} else {
