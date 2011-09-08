@@ -5,12 +5,15 @@
  * Copyright (c) 2011 Yahoo! Inc.  All rights reserved.
  * The copyrights embodied in the content of this file are licensed
  * by Yahoo! Inc. under the BSD (revised) open source license.
+ * 
+ * Modify fishbar http://zorder.org
  */
 package com.yahoo.platform.yui.compressor;
 import com.yahoo.platform.yui.compressor.*;
 import org.mozilla.javascript.*;
 
 import java.io.FileInputStream;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -18,6 +21,8 @@ import java.io.Writer;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import java.net.*;
 
 import org.lite.js.*;
 
@@ -1361,7 +1366,15 @@ public class MergerCompressor {
                 	if(included_mod.get(mod_path) == null){
 	                	if(mod_obj == null){
 	                		cc = new MergerCompressor(false);
-	                		mod_in = new InputStreamReader(new FileInputStream(codeBase + mod_path), sub_charset);
+	                		if( mod_path.indexOf("http://") == 0 || mod_path.indexOf("https://") == 0){
+	                			URL mod_url = new URL(mod_path);
+	                			HttpURLConnection connection = (HttpURLConnection) mod_url.openConnection(); 
+	                			BufferedInputStream http_in = new BufferedInputStream(connection.getInputStream()); 
+	                			
+	                			mod_in = new InputStreamReader(http_in, sub_charset);	
+	                		}else{
+	                			mod_in = new InputStreamReader(new FileInputStream(codeBase + mod_path), sub_charset);	
+	                		}
 	                		cc.loadScript(mod_in);
 	                		mod_cnt =  cc.compress();
 	                		cached_mod.put(mod_path, cc);
