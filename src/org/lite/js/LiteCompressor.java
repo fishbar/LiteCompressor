@@ -118,7 +118,6 @@ public class LiteCompressor {
 		}else{							// single file
 			System.out.println( "[Compress File]" + _in.substring(_codebase.length()));
 			compressFile(_in,_out,_type);
-			System.out.println("[Done] ok!!!");
 		}
 	}
 	public static void compressFile(String in,String out,String type){

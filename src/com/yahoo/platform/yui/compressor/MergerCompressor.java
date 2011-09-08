@@ -9,7 +9,6 @@
  * Modify fishbar http://zorder.org
  */
 package com.yahoo.platform.yui.compressor;
-import com.yahoo.platform.yui.compressor.*;
 import org.mozilla.javascript.*;
 
 import java.io.FileInputStream;
@@ -1366,16 +1365,20 @@ public class MergerCompressor {
                 	if(included_mod.get(mod_path) == null){
 	                	if(mod_obj == null){
 	                		cc = new MergerCompressor(false);
-	                		if( mod_path.indexOf("http://") == 0 || mod_path.indexOf("https://") == 0){
-	                			URL mod_url = new URL(mod_path);
-	                			HttpURLConnection connection = (HttpURLConnection) mod_url.openConnection(); 
-	                			BufferedInputStream http_in = new BufferedInputStream(connection.getInputStream()); 
-	                			
-	                			mod_in = new InputStreamReader(http_in, sub_charset);	
-	                		}else{
-	                			mod_in = new InputStreamReader(new FileInputStream(codeBase + mod_path), sub_charset);	
-	                		}
-	                		cc.loadScript(mod_in);
+	                		try{
+	                			if( mod_path.indexOf("http://") == 0 || mod_path.indexOf("https://") == 0){
+	                				URL mod_url = new URL(mod_path);
+	                				HttpURLConnection connection = (HttpURLConnection) mod_url.openConnection(); 
+	                				BufferedInputStream http_in = new BufferedInputStream(connection.getInputStream());
+	                				mod_in = new InputStreamReader(http_in, sub_charset);
+		                		}else{
+		                			mod_in = new InputStreamReader(new FileInputStream(codeBase + mod_path), sub_charset);	
+		                		}
+		                		cc.loadScript(mod_in);
+		                	}catch(IOException e){
+                				logger.error("URL invalid:"+mod_path, "", -1, "", 0);
+                				break;
+                			}
 	                		mod_cnt =  cc.compress();
 	                		cached_mod.put(mod_path, cc);
 	                		included_mod.put(mod_path, true);
