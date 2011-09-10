@@ -1379,9 +1379,9 @@ public class MergerCompressor {
                 				logger.error("URL invalid:"+mod_path, "", -1, "", 0);
                 				break;
                 			}
-	                		mod_cnt =  cc.compress();
-	                		cached_mod.put(mod_path, cc);
+		                	cached_mod.put(mod_path, cc);
 	                		included_mod.put(mod_path, true);
+	                		mod_cnt =  cc.compress();
 	                	}else{
 	                		mod_cnt = mod_obj.printSymbolTree(linebreakpos, preserveAllSemiColons).toString();
 	                	}
