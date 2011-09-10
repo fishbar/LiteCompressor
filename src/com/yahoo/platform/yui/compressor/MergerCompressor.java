@@ -365,7 +365,7 @@ public class MergerCompressor {
     	StringBuffer sb = new StringBuffer();
         for(int i=0;i<s.length();i++){
                 char ch=s.charAt(i);
-        //Reference: http://www.unicode.org/versions/Unicode5.1.0/
+                //Reference: http://www.unicode.org/versions/Unicode5.1.0/
                 if((ch>='\u00ff')){
                         String ss=Integer.toHexString(ch);
                         sb.append("\\u");
@@ -1363,6 +1363,7 @@ public class MergerCompressor {
                 		consumeToken();
                 	}
                 	if(included_mod.get(mod_path) == null){
+                		included_mod.put(mod_path, true);
 	                	if(mod_obj == null){
 	                		cc = new MergerCompressor(false);
 	                		try{
@@ -1380,7 +1381,6 @@ public class MergerCompressor {
                 				break;
                 			}
 		                	cached_mod.put(mod_path, cc);
-	                		included_mod.put(mod_path, true);
 	                		mod_cnt =  cc.compress();
 	                	}else{
 	                		mod_cnt = mod_obj.printSymbolTree(linebreakpos, preserveAllSemiColons).toString();
